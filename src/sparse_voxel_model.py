@@ -12,9 +12,10 @@ from src.sparse_voxel_gears.renderer import SVRenderer
 from src.sparse_voxel_gears.adaptive import SVAdaptive
 from src.sparse_voxel_gears.io import SVInOut
 from src.sparse_voxel_gears.pooling import SVPooling
+from src.sparse_voxel_gears.compression import SVCompression
 
 
-class SparseVoxelModel(SVConstructor, SVProperties, SVRenderer, SVAdaptive, SVInOut, SVPooling):
+class SparseVoxelModel(SVConstructor, SVProperties, SVRenderer, SVAdaptive, SVInOut, SVPooling, SVCompression):
 
     def __init__(self,
                  n_samp_per_vox=1,       # Number of sampled points per visited voxel

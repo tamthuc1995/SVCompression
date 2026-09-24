@@ -176,3 +176,60 @@ class SVRenderer:
         render_pkg['color'] = render_pkg['color'].clamp(0, 1)
 
         return render_pkg
+
+
+    def collect_render_infos(
+            self,
+            camera,
+            color_mode=None,
+            track_max_w=False,
+            ss=None,
+            output_depth=False,
+            output_normal=False,
+            output_T=False,
+            rand_bg=False,
+            use_auto_exposure=False,
+            **other_opt):
+
+        ###################################
+        # Pre-processing
+        ###################################
+        if ss is None:
+            ss = self.ss
+        w_src, h_src = camera.image_width, camera.image_height
+        w, h = round(w_src * ss), round(h_src * ss)
+        w_ss, h_ss = w / w_src, h / h_src
+        if ss != 1.0 and 'gt_color' in other_opt:
+            other_opt['gt_color'] = resize_rendering(other_opt['gt_color'], size=(h, w))
+
+        n_samp_per_vox = other_opt.pop('n_samp_per_vox', self.n_samp_per_vox)
+
+        ###################################
+        # Call low-level rasterization API
+        ###################################
+        raster_settings = svraster_cuda.renderer.RasterSettings(
+            color_mode=color_mode,
+            n_samp_per_vox=n_samp_per_vox,
+            image_width=w,
+            image_height=h,
+            tanfovx=camera.tanfovx,
+            tanfovy=camera.tanfovy,
+            cx=camera.cx * w_ss,
+            cy=camera.cy * h_ss,
+            w2c_matrix=camera.w2c,
+            c2w_matrix=camera.c2w,
+            bg_color=float(self.white_background),
+            near=camera.near,
+            need_depth=output_depth,
+            need_normal=output_normal,
+            track_max_w=track_max_w,
+            **other_opt)
+    
+        ndup_per_voxels, geomBuffer = svraster_cuda.renderer.collect_rasterize_infor(
+            raster_settings,
+            self.octpath,
+            self.vox_center,
+            self.vox_size,
+        )
+
+        return (ndup_per_voxels, geomBuffer)

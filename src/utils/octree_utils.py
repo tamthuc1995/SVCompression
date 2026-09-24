@@ -141,6 +141,8 @@ def gen_gridpoints_coordinate(octpath, octlevel):
     lv2max = (MAX_NUM_LEVELS - octlevel).long()
     base_grid_ijk = (vox_ijk << lv2max).view(-1, 1, 3)
     gridpts = base_grid_ijk + (subtree_shift_int64 << lv2max.view(-1, 1, 1))
+    # Make sure it is 16 bits max index :| 
+    gridpts = torch.clip(gridpts, min=0, max=2**16-1)
     return gridpts
 
 def compute_gridpoints_xyz(gridpts, scene_center, scene_extent):
