@@ -104,8 +104,7 @@ class SVCompression:
             decoded_octpath, 
             decoded_octlevel
         )
-
-        max_levels         = torch.ones((grid_pts_key.shape[0], 1), dtype=torch.int8)*MAX_NUM_LEVELS
+        max_levels         = torch.ones((grid_pts_key.shape[0], 1), dtype=torch.int8).cuda() * MAX_NUM_LEVELS
         corners_mortoncode = svraster_cuda.utils.ijk_2_octpath(grid_pts_key, max_levels)
         corners_mortoncode = corners_mortoncode[:, 0].cpu().numpy()
         num_corners        = corners_mortoncode.shape[0]
@@ -395,7 +394,7 @@ class SVCompression:
             decoded_octlevel
         )
 
-        max_levels         = torch.ones((grid_pts_key.shape[0], 1), dtype=torch.int8)*MAX_NUM_LEVELS
+        max_levels         = torch.ones((grid_pts_key.shape[0], 1), dtype=torch.int8).cuda() *MAX_NUM_LEVELS
         corners_mortoncode = svraster_cuda.utils.ijk_2_octpath(grid_pts_key, max_levels)
         corners_mortoncode = corners_mortoncode[:, 0].cpu().numpy()
         num_corners        = corners_mortoncode.shape[0]

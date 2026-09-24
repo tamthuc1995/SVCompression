@@ -12,3 +12,6 @@ data:
 
 regularizer:
   lambda_T_inside: 0.01
+
+procedure:
+  n_iter: 30_000

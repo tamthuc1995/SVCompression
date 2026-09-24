@@ -57,8 +57,9 @@ def level_2_vox_size(scene_extent, octlevel):
         @octlevel:      [N, 1]
     '''
     # Formula of voxel size: scene_extent * pow(2, -L)
-    return torch.ldexp(scene_extent, -octlevel)
-
+    # return torch.ldexp(scene_extent, -octlevel)
+    return torch.ldexp(torch.ones_like(octlevel) * scene_extent, -octlevel)
+    
 def vox_size_2_level(scene_extent, vox_size):
     '''
     The Octree levels in floating point of the given voxel sizes.

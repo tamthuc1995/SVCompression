@@ -35,6 +35,56 @@ class RasterSettings(NamedTuple):
     gt_color: torch.Tensor = torch.empty(0)
     debug: bool = False
 
+def collect_rasterize_infor(
+        raster_settings: RasterSettings,
+        octree_paths: torch.Tensor,
+        vox_centers: torch.Tensor,
+        vox_lengths: torch.Tensor,
+):
+
+    # Some input checking
+    if not isinstance(raster_settings, RasterSettings):
+        raise Exception("Expect RasterSettings as first argument.")
+    if raster_settings.n_samp_per_vox > _C.MAX_N_SAMP or raster_settings.n_samp_per_vox < 1:
+        raise Exception(f"n_samp_per_vox should be in range [1, {_C.MAX_N_SAMP}].")
+
+    N = octree_paths.numel()
+    device = octree_paths.device
+    if vox_centers.shape[0] != N or vox_lengths.numel() != N:
+        raise Exception("Size mismatched.")
+    if len(vox_centers.shape) != 2 or vox_centers.shape[1] != 3:
+        raise Exception("Expect vox_centers in shape [N, 3].")
+    if raster_settings.w2c_matrix.device != device or \
+            raster_settings.c2w_matrix.device != device or \
+            vox_centers.device != device or \
+            vox_lengths.device != device:
+        raise Exception("Device mismatch.")
+
+    # Preprocess octree
+    n_duplicates, geomBuffer = _C.rasterize_preprocess(
+        raster_settings.image_width,
+        raster_settings.image_height,
+        raster_settings.tanfovx,
+        raster_settings.tanfovy,
+        raster_settings.cx,
+        raster_settings.cy,
+        raster_settings.w2c_matrix,
+        raster_settings.c2w_matrix,
+        raster_settings.near,
+
+        octree_paths,
+        vox_centers,
+        vox_lengths,
+
+        raster_settings.debug,
+    )
+
+    infor = (
+        n_duplicates,
+        geomBuffer
+    )
+
+    return infor
 
 def rasterize_voxels(
         raster_settings: RasterSettings,
