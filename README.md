@@ -1,4 +1,4 @@
-# Sparse Voxels Rasterizer
+<!-- # Sparse Voxels Rasterizer
 
 ![teaser](./asset/teaser.jpg)
 
@@ -185,4 +185,4 @@ If you find our work useful in your research, please be so kind to give us a sta
   booktitle    = {{CVPR}},
   year         = {2025},
 }
-```
+``` -->
